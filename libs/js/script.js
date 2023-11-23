@@ -34,7 +34,7 @@ function renderRecords(url, container, templateBlock) {
 
 const personnelTemplate = (record) => `
   <tr>
-      <td class="align-middle text-nowrap">${record.lastName}</td>
+      <td class="align-middle text-nowrap">${record.lastName}, ${record.firstName}</td>
       <td class="align-middle text-nowrap d-none d-md-table-cell">${record.department}</td>
       <td class="align-middle text-nowrap d-none d-md-table-cell">${record.location}</td>
       <td class="align-middle text-nowrap d-none d-md-table-cell">${record.email}</td>
@@ -147,6 +147,33 @@ $("#addBtn").click(function () {
     $("#addLocationModal").modal("show");
   }
 });
+// ############################### Personnel show.bs.modal target for dropdown ###################################
+$("#addPersonnelModal").on("show.bs.modal", function (e) {
+  fetchData("libs/php/getAllDepartments.php").then((result) => {
+    $.each(result.data, function () {
+      $("#addPersonnelDepartment").append(
+        $("<option>", {
+          value: this.id,
+          text: this.name,
+        })
+      );
+    });
+  });
+});
+// ############################### Department show.bs.modal target for dropdown ###################################
+
+$("#addDepartmentModal ").on("show.bs.modal", function (e) {
+  fetchData("libs/php/getAllLocation.php").then((result) => {
+    $.each(result.data, function () {
+      $("#addDepartmentLocation").append(
+        $("<option>", {
+          value: this.id,
+          text: this.name,
+        })
+      );
+    });
+  });
+});
 
 // ######################################### Creating Personnel Filter  ##################################################
 
@@ -154,49 +181,52 @@ $("#filterBtn").click(function () {
   if ($("#personnelBtn").hasClass("active")) {
     $("#filterPersonnelModal").modal("show");
     // Fetch and populate departments
-    fetchData("libs/php/getAllDepartments.php").then((result) => {
-      // Clear existing options
-      $("#filterPersonnelByDepartment").empty();
-      // Add 'Get all departments' option
+  }
+});
+
+$("#filterPersonnelModal").on("show.bs.modal", function (e) {
+  fetchData("libs/php/getAllDepartments.php").then((result) => {
+    // Clear existing options
+    $("#filterPersonnelByDepartment").empty();
+    // Add 'Get all departments' option
+    $("#filterPersonnelByDepartment").append(
+      $("<option>", {
+        value: "all",
+        text: "All Departments",
+      })
+    );
+    // Append other options
+    $.each(result.data, function () {
       $("#filterPersonnelByDepartment").append(
         $("<option>", {
-          value: "all",
-          text: "All Departments",
+          value: this.id,
+          text: this.name,
         })
       );
-      // Append other options
-      $.each(result.data, function () {
-        $("#filterPersonnelByDepartment").append(
-          $("<option>", {
-            value: this.id,
-            text: this.name,
-          })
-        );
-      });
     });
+  });
 
-    // Getting location list
-    fetchData("libs/php/getAllLocation.php").then((result) => {
-      // Clear existing options
-      $("#filterPersonnelByLocation").empty();
-      // Add 'Get all departments' option
+  // Getting location list
+  fetchData("libs/php/getAllLocation.php").then((result) => {
+    // Clear existing options
+    $("#filterPersonnelByLocation").empty();
+    // Add 'Get all departments' option
+    $("#filterPersonnelByLocation").append(
+      $("<option>", {
+        value: "all",
+        text: "All Departments",
+      })
+    );
+    // Append other options
+    $.each(result.data, function () {
       $("#filterPersonnelByLocation").append(
         $("<option>", {
-          value: "all",
-          text: "All Departments",
+          value: this.id,
+          text: this.name,
         })
       );
-      // Append other options
-      $.each(result.data, function () {
-        $("#filterPersonnelByLocation").append(
-          $("<option>", {
-            value: this.id,
-            text: this.name,
-          })
-        );
-      });
     });
-  }
+  });
 });
 
 // Handle form submission
@@ -222,7 +252,7 @@ $("#filterPersonnelMethodForm").on("submit", function (e) {
 
 function updatePlaceholder() {
   if ($("#personnelBtn").hasClass("active")) {
-    $("#searchInp").attr("placeholder", "Search by personnel name");
+    $("#searchInp").attr("placeholder", "Search by firstname, lastname, and email");
   }
   if ($("#departmentsBtn").hasClass("active")) {
     $("#searchInp").attr("placeholder", "Search by department name");
@@ -275,7 +305,6 @@ $("#searchInp").on("keyup", function () {
     }
   }
 });
-
 // Update the placeholder when the departments button is clicked
 $("#personnelBtn").on("click", function () {
   updatePlaceholder();
@@ -288,54 +317,25 @@ $("#locationsBtn").on("click", function () {
 });
 
 // ################### Adding records to the corresponding active tabs ##################
-function populateDepartmentDropdown() {
-  fetchData("libs/php/getAllLocation.php").then((result) => {
-    $.each(result.data, function () {
-      $("#addDepartmentLocation").append(
-        $("<option>", {
-          value: this.id,
-          text: this.name,
-        })
-      );
-    });
-  });
-}
-function populatePersonnelDropdown() {
-  fetchData("libs/php/getAllDepartments.php").then((result) => {
-    $.each(result.data, function () {
-      $("#addPersonnelDepartment").append(
-        $("<option>", {
-          value: this.id,
-          text: this.name,
-        })
-      );
-    });
-  });
-}
-
-populateDepartmentDropdown();
-populatePersonnelDropdown();
 
 //  ############################## Adding a New Personnel Record ###################################################
 
 $("#addPersonnelForm").on("submit", function (e) {
-  // Executes when the form button with type="submit" is clicked
-  // stop the default browser behviour
+  // Prevent the default form submission behavior
   e.preventDefault();
-  // AJAX call to save form data
-  let firstName = $("#addPersonnelFirstName").val();
-  let lastName = $("#addPersonnelLastName").val();
-  let jobTitle = $("#addPersonnelJobTitle").val();
-  let email = $("#addPersonnelEmailAddress").val();
-  let departmentName = $("#addPersonnelDepartment").val();
 
-  fetchData("libs/php/insertPersonnel.php", {
-    firstName: firstName,
-    lastName,
-    jobTitle,
-    email,
-    departmentID: departmentName,
-  }).then((result) => {
+  // Retrieving form data
+  let formData = {
+    firstName: $("#addPersonnelFirstName").val(),
+    lastName: $("#addPersonnelLastName").val(),
+    jobTitle: $("#addPersonnelJobTitle").val(),
+    email: $("#addPersonnelEmailAddress").val(),
+    departmentID: $("#addPersonnelDepartment").val(),
+  };
+
+  // AJAX call to save the form data
+  fetchData("libs/php/insertPersonnel.php", formData).then((result) => {
+    // Refresh the personnel records after successful data insertion
     fetchDataAndRefreshRecords(
       "libs/php/getAll.php",
       "#PersonnelRecordContainer",
@@ -343,6 +343,7 @@ $("#addPersonnelForm").on("submit", function (e) {
     );
   });
 });
+
 //  ############################## Adding a New Department Record ###################################################
 
 $("#addDepartmentForm").on("submit", function (e) {
@@ -358,9 +359,9 @@ $("#addDepartmentForm").on("submit", function (e) {
     locationID: DepartmentLocation,
   }).then((result) => {
     fetchDataAndRefreshRecords(
-      "libs/php/getAllLocation.php",
-      "#locationRecordContainer",
-      locationTemplate
+      "libs/php/getAllDepartments.php",
+      "#departmentRecordContainer",
+      departmentTemplate
     );
   });
 });
