@@ -175,6 +175,18 @@ $("#addDepartmentModal ").on("show.bs.modal", function (e) {
   });
 });
 
+// ################################ Disabling the filter option for department and location ###############################
+
+$("#departmentsBtn").click(function () {
+  console.log("depatwjd");
+  $("#filterBtn").attr("disabled", true);
+});
+
+$("#locationsBtn").click(function () {
+  $("#filterBtn").attr("disabled", true);
+  // Call function to refresh location table
+});
+
 // ######################################### Creating Personnel Filter  ##################################################
 
 $("#filterBtn").click(function () {
@@ -335,6 +347,7 @@ $("#addPersonnelForm").on("submit", function (e) {
 
   // AJAX call to save the form data
   fetchData("libs/php/insertPersonnel.php", formData).then((result) => {
+    console.log("inserting to db");
     // Refresh the personnel records after successful data insertion
     fetchDataAndRefreshRecords(
       "libs/php/getAll.php",
@@ -523,22 +536,56 @@ editLocationForm.on("submit", handleLocationSubmit);
 $(document).on("click", ".deletePersonnelBtn", function () {
   // Retrieve the data-id attribute
   var recordId = $(this).data("id");
-  fetchData("libs/php/deletePersonnel.php", { id: recordId }).then((result) => {
-    $(this).closest("tr").remove();
+  fetchData("libs/php/getPersonnelByID.php", { id: recordId }).then((result) => {
+    console.log(result.data.personnel[0].firstName);
+    console.log("get name");
+    $("#areYouSurePersonnel").text(
+      `${result.data.personnel[0].firstName} ${result.data.personnel[0].lastName}`
+    );
+    $("#deletePersonnelConfirmationModal").modal("show");
+    $("#deletePersonnelYesBtn").click(function () {
+      fetchData("libs/php/deletePersonnel.php", { id: recordId }).then((result) => {
+        // console.log(result);
+        fetchDataAndRefreshRecords(
+          "libs/php/getAll.php",
+          "#PersonnelRecordContainer",
+          personnelTemplate
+        );
+      });
+    });
   });
 });
 
 //  ################################### Deleting Departments Records ########################################
-let messageElement = document.getElementById("message");
+// let messageElement = document.getElementById("message");
+
 $(document).on("click", ".deleteDepartmentBtn", function () {
-  // Get the location ID from the data attribute of the button
-  var departmentId = $(this).attr("data-id");
-  fetchData("libs/php/deleteDepartment.php", { departmentId: departmentId }).then((result) => {
-    if (result.status === "success") {
-      $(this).closest("tr").remove();
-    } else {
-      messageElement.textContent = result.message;
-      $("#deleteConfirmation").modal("show");
+  var departmentId = $(this).data("id"); // Use .data() for data attributes
+  // $("#deleteConfirmation").modal("show");
+  fetchData("libs/php/checkDepartmentUse.php", { departmentId }).then((result) => {
+    console.log(result);
+    if (result.status == "success") {
+      if (result.data.personnelCount == 0) {
+        $("#areyousureDepartment").text(result.data.departmentName);
+        $("#deleteDepartmentConfirmationModal").modal("show");
+        $("#deleteYesBtn").click(function () {
+          fetchData("libs/php/deleteDepartment.php", { departmentId: departmentId }).then(
+            (result) => {
+              console.log("fetching teh dleet php");
+              fetchDataAndRefreshRecords(
+                "libs/php/getAllDepartments.php",
+                "#departmentRecordContainer",
+                departmentTemplate
+              );
+            }
+          );
+        });
+      } else {
+        console.log("here goes the cant delet modal");
+        $("#cannotDeleteDepartmentName").text(result.data.departmentName);
+        $("#personnelCount").text(result.data.personnelCount);
+        $("#cannotDeleteDepartmentModal").modal("show");
+      }
     }
   });
 });
@@ -548,14 +595,30 @@ $(document).on("click", ".deleteDepartmentBtn", function () {
 $(document).on("click", ".deleteLocationBtn", function () {
   // Get the location ID from the data attribute of the button
   var locationId = $(this).attr("data-id");
-
-  fetchData("libs/php/deleteLocation.php", { locationId: locationId }).then((result) => {
-    if (result.status === "success") {
-      $(this).closest("tr").remove();
-    } else {
-      messageElement.textContent = result.message;
-      $("#deleteConfirmation").modal("show");
+  fetchData("libs/php/checkLocation.php", { locationId }).then((result) => {
+    console.log(result);
+    console.log(result.data.locationName);
+    if (result.status.code == "200") {
+      if (result.data.departmentCount == 0) {
+        $("#areYouSureLocation").text(result.data.locationName);
+        $("#deleteLocationConfirmationModal").modal("show");
+        $("#deleteLocationYesBtn").click(function () {
+          console.log("clicked Delete location");
+          fetchData("libs/php/deleteLocation.php", { locationId }).then((result) => {
+            console.log("deleing location");
+            fetchDataAndRefreshRecords(
+              "libs/php/getAllLocation.php",
+              "#locationRecordContainer",
+              locationTemplate
+            );
+          });
+        });
+      } else {
+        console.log("here goes the cant delet location modal");
+        $("#cannotDeleteLocationName").text(result.data.locationName);
+        $("#departmentCount").text(result.data.departmentCount);
+        $("#cannotDeleteLocationModal").modal("show");
+      }
     }
   });
-  // }
 });
