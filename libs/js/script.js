@@ -596,8 +596,6 @@ $(document).on("click", ".deleteLocationBtn", function () {
   // Get the location ID from the data attribute of the button
   var locationId = $(this).attr("data-id");
   fetchData("libs/php/checkLocation.php", { locationId }).then((result) => {
-    console.log(result);
-    console.log(result.data.locationName);
     if (result.status.code == "200") {
       if (result.data.departmentCount == 0) {
         $("#areYouSureLocation").text(result.data.locationName);
