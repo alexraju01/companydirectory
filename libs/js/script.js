@@ -108,6 +108,43 @@ function fetchDataAndRefreshRecords(url, containerId, templateFunction) {
   });
 }
 
+// ################################# Refresh Table Tabs when clicked #########################################
+$("#personnelBtn").click(function () {
+  console.log("personnel");
+  fetchDataAndRefreshRecords("libs/php/getAll.php", "#PersonnelRecordContainer", personnelTemplate);
+  console.log("refreshed personnel");
+});
+
+$("#departmentsBtn").click(function () {
+  console.log("departments");
+  fetchDataAndRefreshRecords(
+    "libs/php/getAllDepartments.php",
+    "#departmentRecordContainer",
+    departmentTemplate
+  );
+  console.log("refreshed departmnts");
+});
+
+$("#locationsBtn").click(function () {
+  console.log("locations");
+  fetchDataAndRefreshRecords(
+    "libs/php/getAllLocation.php",
+    "#locationRecordContainer",
+    locationTemplate
+  );
+  console.log("refreshed location");
+});
+
+// $("#personnelBtn").click(function () {
+//   $("#filterBtn").attr("disabled", false);
+//   // Call function to refresh presonnel table
+// });
+
+// if ($("#departmentsBtn").hasClass("active")) {
+//   // Refresh department table
+//   console.log("refresh department table");
+// }
+
 $("#refreshBtn").click(function () {
   if ($("#personnelBtn").hasClass("active")) {
     // Refresh personnel table
@@ -177,6 +214,11 @@ $("#addDepartmentModal ").on("show.bs.modal", function (e) {
 
 // ################################ Disabling the filter option for department and location ###############################
 
+$("#personnelBtn").click(function () {
+  $("#filterBtn").attr("disabled", false);
+  // Call function to refresh presonnel table
+});
+
 $("#departmentsBtn").click(function () {
   $("#filterBtn").attr("disabled", true);
 });
@@ -188,12 +230,12 @@ $("#locationsBtn").click(function () {
 
 // ######################################### Creating Personnel Filter  ##################################################
 
-$("#filterBtn").click(function () {
-  if ($("#personnelBtn").hasClass("active")) {
+if ($("#personnelBtn").hasClass("active")) {
+  $("#filterBtn").click(function () {
     $("#filterPersonnelModal").modal("show");
     // Fetch and populate departments
-  }
-});
+  });
+}
 
 $("#filterPersonnelModal").on("show.bs.modal", function (e) {
   fetchData("libs/php/getAllDepartments.php").then((result) => {

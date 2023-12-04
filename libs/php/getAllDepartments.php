@@ -17,7 +17,7 @@
 		exit;
 	}	
 
-	$query = 'SELECT d.id, d.name, l.name as location FROM department d LEFT JOIN location l on (l.id = d.locationID)';
+	$query = 'SELECT d.id, d.name, l.name as location FROM department d LEFT JOIN location l on (l.id = d.locationID) ORDER BY d.name';
 	$result = $conn->query($query);
 
 	if (!$result) {
