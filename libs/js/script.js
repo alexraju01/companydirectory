@@ -388,6 +388,7 @@ $("#addPersonnelForm").on("submit", function (e) {
 
   // AJAX call to save the form data
   fetchData("libs/php/insertPersonnel.php", formData).then((result) => {
+    $("#addPersonnelModal").modal("hide");
     // Refresh the personnel records after successful data insertion
     fetchDataAndRefreshRecords(
       "libs/php/getAll.php",
