@@ -96,7 +96,7 @@ const locationTemplate = (record) => `<tr>
   </button>
 </td>
 </tr>`;
-// ##################################Displaying the records in the allocated containers ##########################################
+// ################################## Displaying the records in the allocated containers ##########################################
 renderRecords("libs/php/getAll.php", $PersonnelRecordContainer, personnelTemplate);
 renderRecords("libs/php/getAllDepartments.php", $departmentRecordContainer, departmentTemplate);
 renderRecords("libs/php/getAllLocation.php", $locationRecordContainer, locationTemplate);
@@ -134,16 +134,6 @@ $("#locationsBtn").click(function () {
   );
   console.log("refreshed location");
 });
-
-// $("#personnelBtn").click(function () {
-//   $("#filterBtn").attr("disabled", false);
-//   // Call function to refresh presonnel table
-// });
-
-// if ($("#departmentsBtn").hasClass("active")) {
-//   // Refresh department table
-//   console.log("refresh department table");
-// }
 
 $("#refreshBtn").click(function () {
   if ($("#personnelBtn").hasClass("active")) {
@@ -267,7 +257,7 @@ $("#filterPersonnelModal").on("show.bs.modal", function (e) {
     $("#filterPersonnelByLocation").append(
       $("<option>", {
         value: "all",
-        text: "All Departments",
+        text: "All Locations",
       })
     );
     // Append other options
@@ -395,6 +385,7 @@ $("#addPersonnelForm").on("submit", function (e) {
       "#PersonnelRecordContainer",
       personnelTemplate
     );
+    $("#addPersonnelForm")[0].reset();
   });
 });
 
@@ -417,6 +408,7 @@ $("#addDepartmentForm").on("submit", function (e) {
       "#departmentRecordContainer",
       departmentTemplate
     );
+    $("#addDepartmentForm")[0].reset();
   });
 });
 
@@ -433,6 +425,7 @@ $("#addLocationForm").on("submit", function (e) {
       "#locationRecordContainer",
       locationTemplate
     );
+    $("#addLocationForm")[0].reset();
   });
 });
 
@@ -469,6 +462,7 @@ editPersonnelModal.on("show.bs.modal", function (e) {
 
 function handlePersonnelSubmit(e) {
   e.preventDefault();
+  console.log("jh");
   const updatedData = {
     personnelId: $("#editPersonnelEmployeeID").val(),
     updatedFirstName: $("#editPersonnelFirstName").val(),
@@ -486,7 +480,11 @@ function handlePersonnelSubmit(e) {
     );
   });
 }
-$("#savePersonnelBtn").on("click", handlePersonnelSubmit);
+// #########################################################################################################################################################################################
+// $("#savePersonnelBtn").on("click", handlePersonnelSubmit);
+editPersonnelForm.on("submit", handlePersonnelSubmit);
+
+// #########################################################################################################################################################################################
 
 //  ############################## Opening up Department edit modal and autofilling ###################################################
 const editDepartmentModal = $("#editDepartmentModal");
