@@ -650,3 +650,18 @@ $(document).on("click", ".deleteLocationBtn", function () {
     }
   });
 });
+
+// Listen for when the window and all sub-resources have finished loading
+window.onload = function () {
+  // Access the preloader element
+  var preloader = document.getElementById("preloader");
+
+  // Apply a fade-out transition
+  preloader.style.opacity = 0;
+  preloader.style.transition = "opacity 0.5s ease";
+
+  // Once the fade-out is done, set display to 'none'
+  setTimeout(function () {
+    preloader.style.display = "none";
+  }, 500); // this should match the opacity transition duration
+};
